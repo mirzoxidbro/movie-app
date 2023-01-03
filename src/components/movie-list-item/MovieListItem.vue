@@ -2,15 +2,16 @@
 
     <li 
         class="list-group-item d-flex justify-content-between favourite"
-        :class="[{like: movie.like}, {favourite: movie.favourite}]">
+        :class="[{like: movie.like}, {favourite: movie.favourite}]"
+        >
 
-        <span class="list-group-item-label" >{{ movie.name }}</span>
+        <span @click="onLike()" class="list-group-item-label" >{{ movie.name }}</span>
         <input type="number" class="list-group-item-input" :value="movie.viewers" >
 
         <div>
-            <button type="button" class="btn-cookie btn-sm"><i class="fas fa-cookie"></i></button>
-            <button type="button" class="btn-trash btn-sm"><i class="fas fa-trash"></i></button>
-            <i class="fas fa-star"></i>
+            <button @click="onFavourite()" type="button" class="btn-cookie btn-sm"><i class="fas fa-cookie"></i></button>
+            <button @click="onDelete()" type="button" class="btn-trash btn-sm"><i class="fas fa-trash"></i></button>
+            <i class="fas fa-heart"></i>
         </div>
     </li>
 </template>
@@ -20,6 +21,17 @@ export default {
         movie: {
             type: Object,
             required: true
+        }
+    },
+    methods: {
+        onLike(){
+            this.$emit('onLike', this.movie.id)
+        },
+        onDelete(){
+            this.$emit('onDelete', this.movie.id)
+        },
+        onFavourite(){
+            this.$emit('onFavourite', this.movie.id)
         }
     }
 }
@@ -57,7 +69,7 @@ export default {
         cursor: pointer;
     }
 
-    .list-group-item .fa-star{
+    .list-group-item .fa-heart{
         width: 35px;
         height: 35px;
         text-align: center;
@@ -69,7 +81,7 @@ export default {
         opacity: 0;
     }
 
-    .list-group-item.like .fa-star{
+    .list-group-item.like .fa-heart{
         transform: translateX(0);
         opacity: 1;
     }
