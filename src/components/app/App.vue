@@ -1,13 +1,13 @@
 <template>
   <div class="app font-monospace">
     <div class="content">
-      <AppInfo />
+      <AppInfo :movieCount="movies.length" :favouriteMovie="movies.filter(m => m.favourite).length"/>
       <div class="search-panel">
         <SearchPanel />
         <AppFilter />
       </div>
-      <movie-list />
-      <movie-add-form />
+      <movie-list :movies="movies"/>
+      <movie-add-form @createMovie="createMovie"/>
     </div>
   </div>
 </template>
@@ -25,6 +25,22 @@ import MovieList from '../movie-list/MovieList.vue'
         AppFilter,
         MovieList,
         MovieAddForm
+    },
+
+    data() {
+        return {
+            movies: [
+                {name: "Ertugrul", favourite:true, like:true, viewers: 856, id: 1},
+                {name: "Cho'qintirgan ota", favourite:false, like:false, viewers: 56, id: 2},
+                {name: "O'tgan kunlar", favourite:true, like:true, viewers: 956, id: 3},
+            ]
+        }
+    },
+
+    methods: {
+      createMovie(item){
+        this.movies.push(item)
+      }
     }
   }
 </script>
