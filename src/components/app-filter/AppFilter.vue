@@ -1,9 +1,13 @@
 <template>
     <div class="btn-group">
-        <button :class="[filterName == 'all' ? 'btn-dark' : 'btn-outline-dark']" class="btn" type="button" @click="filterHandler('all')">Barcha kinolar</button>
-        <button :class="[filterName == 'favourite' ? 'btn-dark' : 'btn-outline-dark']" class="btn" type="button" @click="filterHandler('favourite')">Mashxur kinolar</button>
-        <button :class="[filterName == 'popular' ? 'btn-dark' : 'btn-outline-dark']" class="btn" type="button" @click="filterHandler('popular')">Eng ko'p ko'rilgan kinolar</button>
-    </div>
+        <button 
+            v-for="btn in filterButtons" :key="btn.name"
+            class="btn" :class="[filterName == btn.name ? 'btn-dark' : 'btn-outline-dark']"
+            @click="filterHandler(btn.name)"
+            >
+            {{ btn.title }}
+        </button>
+   </div>
 </template>
 <script>
 export default {
@@ -20,7 +24,12 @@ export default {
 
     data(){
         return {
-            filter: 'all'
+            filterButtons: [
+                {title: 'Barcha kinolar', name: 'all'},
+                {title: 'Mashxur kinolar', name: 'favourite'},
+                {title: "Eng ko'p ko'rilgan kinolar", name: 'popular'},
+            ],
+            filter: 'all',
         }
     },
 
