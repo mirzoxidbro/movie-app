@@ -6,10 +6,26 @@
         <SearchPanel  :updateTermHandler="updateTermHandler" />
         <AppFilter :updateFilterHandler="updateFilterHandler" :filterName="filter" />
       </div>
-      <movie-list :movies="onFilterHandler(onSearchHandler(movies, term), filter)" 
-                  @onLike="onLikeHandler" 
-                  @onDelete="onDeleteHandler"
-                  @onFavourite="onFavouriteHandler" />
+      <Box v-if="!movies.length && !isLoading">
+         <div class="text-center fs-3 text-danger">Kinolar yo'q</div> 
+      </Box>
+      <Loader v-else-if="isLoading" class="d-flex justify-content-center"></Loader>
+        <movie-list v-else
+                   :movies="onFilterHandler(onSearchHandler(movies, term), filter)" 
+                    @onLike="onLikeHandler" 
+                    @onDelete="onDeleteHandler"
+                    @onFavourite="onFavouriteHandler" />
+                    
+        <Box>
+          <nav aria-label="...">
+            <ul class="pagination pagination-sm">
+              <li v-for="pageNumber in totalPage" :key="pageNumber" @click="ChangePageNumber(pageNumber)">
+                  <span class="page-link" style="cursor:pointer;" :class="{'active': pageNumber == page}" >{{ pageNumber }}</span>
+              </li>
+            </ul>
+          </nav>
+        </Box>
+                    
       <movie-add-form @createMovie="createMovie"/>
     </div>
   </div>
@@ -17,28 +33,37 @@
 
 <script>
 import AppFilter from '../app-filter/AppFilter.vue'
-  import AppInfo from '../app-info/AppInfo.vue'
+import AppInfo from '../app-info/AppInfo.vue'
 import MovieAddForm from '../movie-add-form/MovieAddForm.vue'
 import MovieList from '../movie-list/MovieList.vue'
-  import SearchPanel from '../search-panel/SearchPanel.vue'
+import SearchPanel from '../search-panel/SearchPanel.vue'
+import axios from 'axios'
+import PrimaryButton from '../../ui-components/PrimaryButton.vue'
+import  Box  from '../../ui-components/Box.vue'
+import  Loader  from '../../ui-components/Loader.vue'
+
+
   export default{
     components: {
         AppInfo,
         SearchPanel,
         AppFilter,
         MovieList,
-        MovieAddForm
+        MovieAddForm,
+        PrimaryButton,
+        Box,
+        Loader
     },
 
     data() {
         return {
-            movies: [
-                {name: "Ertugrul", favourite:true, like:true, viewers: 856, id: 1},
-                {name: "Cho'qintirgan ota", favourite:false, like:false, viewers: 56, id: 2},
-                {name: "O'tgan kunlar", favourite:true, like:false, viewers: 956, id: 3},
-            ],
+            movies: [],
             term: '',
-            filter: 'all'
+            filter: 'all',
+            isLoading: false,
+            limit: 10,
+            page:1,
+            totalPage: 0
         }
     },
 
@@ -80,13 +105,55 @@ import MovieList from '../movie-list/MovieList.vue'
       onFilterHandler(arr, filter){
         switch(filter){
             case 'favourite' : return arr.filter(c => c.like);
-            case 'popular' : return arr.filter(c => c.viewers > 500)
+            case 'popular' : return arr.filter(c => c.viewers > 50)
             default : return arr
           }
       },
 
       updateFilterHandler(filter){
         this.filter = filter
+      },
+
+      ChangePageNumber(page){
+        this.page = page
+      },
+
+      async fetchMovie(){
+        try {
+          this.isLoading = true
+            const response = await axios.get('https://jsonplaceholder.typicode.com/posts', {
+              params: {
+                _limit: this.limit,
+                _page: this.page
+              }
+            })
+            const newArr = response.data.map(item => ({
+              id: item.id,
+              name: item.title,
+              favourite: false,
+              like: false,
+              viewers: item.id * 10
+  
+            }))
+            this.movies = newArr
+            this.isLoading = false
+            this.totalPage = Math.ceil(response.headers['x-total-count'] / this.limit) 
+        } catch (error) {
+          alert(error.message)
+        } 
+        finally {
+          this.isLoading = false
+        }
+      },
+
+    },
+    mounted() {
+          this.fetchMovie();
+        },
+
+    watch: {
+      page(){
+        this.fetchMovie()
       }
     }
   }
