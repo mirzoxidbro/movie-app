@@ -68,8 +68,10 @@ import  Loader  from '../../ui-components/Loader.vue'
     },
 
     methods: {
-      createMovie(item){
-        this.movies.push(item)
+      async createMovie(item){
+        // this.movies.push(item)
+        const response = await axios.post('https://jsonplaceholder.typicode.com/posts', item)
+        console.log(response);
       },
       onLikeHandler(id){
           const arr = this.movies.map(item => {
@@ -79,8 +81,10 @@ import  Loader  from '../../ui-components/Loader.vue'
             return item
           })
       },
-      onDeleteHandler(id){
+      async onDeleteHandler(id){
         this.movies = this.movies.filter(c => c.id !== id)
+        const response = await axios.delete(`https://jsonplaceholder.typicode.com/posts/${id}`)
+        console.log(response)
       },
       onFavouriteHandler(id){
         const arr = this.movies.map(item => {
